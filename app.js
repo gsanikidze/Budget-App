@@ -64,7 +64,29 @@ var budgetController = (function() {
     },
     returnData: function() {
       return data;
-    }
+    },
+    returnIdOfElementIMustDelete: function(id) {
+
+      var checkInc = function(ind) {
+        data.total.inc -= data.allItams.inc[ind].value;
+        data.budget = data.total.inc - data.total.exp;
+      }
+      var checkExp = function(ind){
+        data.total.exp -= data.allItams.exp[ind].value;
+        data.budget = data.total.inc - data.total.exp;
+        //data.allItams.exp.splice(ind, 1);
+      }
+      data.allItams.inc.forEach(function(cur, ind) {
+        if (cur.id === id) {
+        checkInc(ind)
+      }
+      })
+      data.allItams.exp.forEach(function(cur, ind) {
+        if (cur.id === id) {
+          checkExp(ind)
+        }
+      })
+    },
   }
 
 })();
@@ -110,7 +132,7 @@ var UIController = (function() {
         selector('.income__list').insertAdjacentHTML('beforeend', html);
         //calculate total inc
         dat.total.inc += obj.inc[obj.inc.length - 1].value;
-        console.log(dat.total.inc);
+        //console.log(dat.total.inc);
       } else if (obj.exp.length === counterExp) {
         html = `<div class="item clearfix" id="${obj.exp[obj.exp.length - 1].id}">
             <div class="item__description">${obj.exp[obj.exp.length - 1].description}</div>
@@ -146,14 +168,19 @@ var UIController = (function() {
     },
     // display budget
     displayBudget : function(dat) {
-      selector('.budget__value').textContent = dat.total.budget;
       selector('.budget__expenses--value').textContent = dat.total.exp;
       selector('.budget__income--value').textContent = dat.total.inc;
+      selector('.budget__value').textContent = dat.total.inc - dat.total.exp;
       if (dat.total.percent > 0) {
-        selector('.budget__expenses--percentage').textContent = dat.total.percent + '%';
+        selector('.budget__expenses--percentage').textContent = Math.round(dat.total.exp / dat.total.inc * 100) + '%';
       } else {
         selector('.budget__expenses--percentage').textContent = '---';
       }
+    },
+    // remove items from ui
+    removeItamsUI : function(id) {
+      var selected = document.getElementById(id)
+      selected.parentNode.removeChild(selected);
     }
 
   };
@@ -172,7 +199,19 @@ var controller = (function(budgetCtrl, UICtrl) {
         addValue();
       }
     });
+    // remove itams
+    selector('.container').addEventListener('click', deletItamFromData);
   }
+  // remove itams
+  var deletItamFromData = function(event) {
+    var ID;
+    ID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+    budgetCtrl.returnIdOfElementIMustDelete(ID);
+    UICtrl.removeItamsUI(ID);
+    UICtrl.displayBudget(budgetCtrl.returnData());
+  }
+
+
 
   //save values
   var counter = 1;
