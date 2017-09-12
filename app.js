@@ -201,6 +201,13 @@ var UIController = (function() {
       num = int + '.' + numSplit[1];
       return num;
     },
+    // display date
+    displayDate : function(){
+      var now, year;
+      now = new Date();
+      year = now.getFullYear();
+      selector('.budget__title--month').textContent = year;
+    }
 
   };
 
@@ -244,7 +251,7 @@ var controller = (function(budgetCtrl, UICtrl) {
       //budgetCtrl.addPercentes();
     }
   };
-
+  UICtrl.displayDate();
   // let`s make light!
   return {
     returnEvents: function() {
