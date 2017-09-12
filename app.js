@@ -30,6 +30,7 @@ var budgetController = (function() {
       inc: 0
     },
     percent: 0,
+    percentOfEachExp: [],
     budget: 0
   }
 
@@ -87,6 +88,12 @@ var budgetController = (function() {
         }
       })
     },
+    // addPercentes: function(){
+    //   for (var i = 0; i < data.allItams.exp.length; i++) {
+    //     data.percentOfEachExp[i] = Math.round(data.allItams.exp[i].value / data.total.exp * 100);
+    //     console.log(data.percentOfEachExp[i]);
+    //   }
+    // },
   }
 
 })();
@@ -122,7 +129,7 @@ var UIController = (function() {
         <div class="item clearfix" id="${obj.inc[obj.inc.length - 1].id}">
             <div class="item__description">${obj.inc[obj.inc.length - 1].description}</div>
             <div class="right clearfix">
-                <div class="item__value">${obj.inc[obj.inc.length - 1].value}</div>
+                <div class="item__value">${UIController.workWithNums(obj.inc[obj.inc.length - 1].value)}</div>
                 <div class="item__delete">
                     <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
                 </div>
@@ -137,8 +144,7 @@ var UIController = (function() {
         html = `<div class="item clearfix" id="${obj.exp[obj.exp.length - 1].id}">
             <div class="item__description">${obj.exp[obj.exp.length - 1].description}</div>
             <div class="right clearfix">
-                <div class="item__value">${obj.exp[obj.exp.length - 1].value}</div>
-                <div class="item__percentage">21%</div>
+                <div class="item__value">${UIController.workWithNums(obj.exp[obj.exp.length - 1].value)}</div>
                 <div class="item__delete">
                     <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
                 </div>
@@ -168,9 +174,9 @@ var UIController = (function() {
     },
     // display budget
     displayBudget : function(dat) {
-      selector('.budget__expenses--value').textContent = dat.total.exp;
-      selector('.budget__income--value').textContent = dat.total.inc;
-      selector('.budget__value').textContent = dat.total.inc - dat.total.exp;
+      selector('.budget__expenses--value').textContent = UIController.workWithNums(dat.total.exp);
+      selector('.budget__income--value').textContent = UIController.workWithNums(dat.total.inc);
+      selector('.budget__value').textContent = UIController.workWithNums(dat.total.inc - dat.total.exp);
       if (dat.total.percent > 0) {
         selector('.budget__expenses--percentage').textContent = Math.round(dat.total.exp / dat.total.inc * 100) + '%';
       } else {
@@ -181,7 +187,20 @@ var UIController = (function() {
     removeItamsUI : function(id) {
       var selected = document.getElementById(id)
       selected.parentNode.removeChild(selected);
-    }
+    },
+    // make numbers nice look
+    workWithNums : function(num) {
+      var numSplit;
+      num = Math.abs(num);
+      num = num.toFixed(2);
+      numSplit = num.split('.');
+      int = numSplit[0]
+      if (int.length > 3) {
+        int = int.substr(0, int.length - 3) + "," + int.substr(int.length-3, 3);
+      }
+      num = int + '.' + numSplit[1];
+      return num;
+    },
 
   };
 
@@ -209,6 +228,7 @@ var controller = (function(budgetCtrl, UICtrl) {
     budgetCtrl.returnIdOfElementIMustDelete(ID);
     UICtrl.removeItamsUI(ID);
     UICtrl.displayBudget(budgetCtrl.returnData());
+    //budgetCtrl.addPercentes();
   }
 
 
@@ -221,6 +241,7 @@ var controller = (function(budgetCtrl, UICtrl) {
       UICtrl.addString(budgetCtrl.retAllItams(), budgetCtrl.returnData());
       UICtrl.clearFilds();
       UICtrl.displayBudget(budgetCtrl.returnData());
+      //budgetCtrl.addPercentes();
     }
   };
 
